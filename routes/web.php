@@ -1,6 +1,11 @@
 <?php
 
+use App\Http\Controllers\GoogleAuthController;
 use Illuminate\Support\Facades\Route;
+use App\Mail\Email;
+use  Illuminate\Support\Facades\Mail;
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -13,6 +18,20 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+
+
+// //|--------------------------------------------------------------------------
+// Route::get('/auth/google/redirect', [GoogleAuthController::class, 'redirect']);
+// //|--------------------------------------------------------------------------
+// Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback']);
+// //|--------------------------------------------------------------------------
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get(uri: '/send', action: function () {
+    Mail::to(users: 'khaldsyrk@gmail.com')->send(new Email());
+    return "Email Send!";
+});
+
+//|--------------------------------------------------------------------------

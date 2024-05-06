@@ -16,10 +16,14 @@ return new class extends Migration
             $table->string('name');
             $table->enum('status', ['Student', 'Teacher', 'Manager'])->default('Manager');
             $table->string('email')->unique();
+            $table->string('phoneNumber')->unique();
+            $table->enum('classRoom', include(app_path('Enums/ClassroomLevels.php')));
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->enum('payment_status', ['Pending', 'Paid'])->nullable(); // تجعل الحقل قابل للـ Null
+            $table->timestamp('payment_date')->nullable();
             $table->rememberToken();
-            $table->timestamps();
+            $table->timestamps(false);
         });
     }
 

@@ -148,13 +148,23 @@ class AuthController extends Controller
         $validate = $request->validate([
             'name' => 'required|max:255',
             'email' => 'required|max:255|email|unique:users,email',
+            'phoneNumber' => 'required|max:50',
+            "classRoom" => 'required',
             'password' => 'required | confirmed|min:6',
             'status' => 'required'
 
         ]);
         $validate['password'] = Hash::make($validate['password']);
 
+
         $user = User::create($validate);
+
+
+        if ($validate['status'] === 'Student') {
+            $user->Payment()->create();
+        }
+
+
 
 
         return response()->json([

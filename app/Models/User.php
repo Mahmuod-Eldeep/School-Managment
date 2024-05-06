@@ -25,7 +25,14 @@ class User extends Authenticatable
         'email',
         'status',
         'password',
+        'phoneNumber',
+        'classRoom',
+        'payment_status',
+        'payment_date',
+        'google_id',
     ];
+
+
 
     /**
      * The attributes that should be hidden for serialization.
@@ -44,6 +51,7 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'payment_status' => 'boolean',
     ];
 
     public function tasks(): HasMany
@@ -54,5 +62,10 @@ class User extends Authenticatable
     public function subjects(): HasMany
     {
         return $this->hasMany(Subject::class, 'creator_id');
+    }
+
+    public function Payment(): HasMany
+    {
+        return $this->hasMany(MyFatoorah::class, 'user_id');
     }
 }
