@@ -28,21 +28,10 @@ class UserController extends Controller
             ->paginate();
         return new  UserCollection($User);
     }
-
-
-
-
-
-
     //----------------------------------------------------Function_To_Create_User-----------------------------------------------------------------------------------
-
 
     public function store(CreateUserRequest $request)
     {
-
-
-
-
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -53,26 +42,12 @@ class UserController extends Controller
         ]);
         return response()->json(['message' => 'The User Create Succssefully'], 201);
     }
-    //----------------------------------------------------Function_To_get_User-----------------------------------------------------------------------------------
 
+    //----------------------------------------------------Function_To_get_User-----------------------------------------------------------------------------------
     public function show(Request $request, User $user)
     {
-        // $user_Data = Auth::user();
-        // if ($user_Data->id === $user->id) {
-        //     return new UserResource($user);
-        // }
-        // return response()->json(['massege:' => "this Action is Not Unauthorized"], 401);
         return new UserResource($user);
     }
-
-
-
-
-
-
-
-
-
 
     //----------------------------------------------------Function_To_Update_User-----------------------------------------------------------------------------------
 
