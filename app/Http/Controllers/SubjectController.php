@@ -26,7 +26,7 @@ class SubjectController extends Controller
 {
     public function __construct()
     {
-        $this->authorizeResource(Subject::class, 'Subject');
+        $this->authorizeResource(Subject::class, 'subject');
     }
 
     /**

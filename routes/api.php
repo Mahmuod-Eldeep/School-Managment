@@ -6,6 +6,7 @@ use  App\Http\Controllers\AuthController;
 use App\Http\Controllers\emailcontroller;
 use App\Http\Controllers\MyFatoorahController;
 use App\Http\Controllers\StripePaymentController;
+use App\Http\Controllers\UserController;
 use App\Mail\Email;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -30,9 +31,9 @@ Route::middleware('auth:sanctum')->post("register", [AuthController::class, 'reg
 //------------------------------------------------------------------------------------
 Route::middleware('auth:sanctum')->post("logout", [AuthController::class, 'logout']);
 //------------------------------------------------------------------------------------
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
 //------------------------------------------------------------------------------------
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('tasks', TaskController::class);
@@ -52,3 +53,15 @@ Route::middleware('auth:sanctum')->post("Myfatoora", [MyFatoorahController::clas
 //     Mail::to(users: 'mahmuodeldeep114@gmail.com')->send(new Email());
 //     return "Email Send";
 // });
+//------------------------------------------------------------------------------------------
+
+// Route::middleware('auth:api')->prefix('users')->group(function () {
+//     Route::get('show/{id}', [UserController::class, 'show']);
+//     Route::put('update/{id}', [UserController::class, 'update']);
+//     Route::delete('delete/{id}', [UserController::class, 'destroy']);
+//     Route::post('Store', [UserController::class, 'store']);
+// });
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('users', UserController::class);
+});
+// Route::get('user/{id}', [UserController::class, 'show']);
