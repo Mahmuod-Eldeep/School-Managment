@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
-
+use App\Http\Requests\LoginRequest;
+use App\Http\Requests\RegisterRequest;
+use App\Mail\ForgotPasswordMail;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 
 /**
  * @OA\Schema(
@@ -70,18 +74,12 @@ class AuthController extends Controller
      *     )
      * )
      */
-    public function login(Request $request)
+    public function login(LoginRequest $loginRequest)
     {
+        $credentials = $loginRequest->only('email', 'password');
+        if (Auth::attempt($credentials)) {
 
-        $validated = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-
-        ]);
-
-        if (Auth::attempt($validated)) {
-
-            $user = User::where('email', $validated['email'])->first();
+            $user = User::where('email', $loginRequest->email)->first();
             return response()->json([
                 'acces_token' => $user->createToken('api_token')->plainTextToken,
                 'token_type' => 'Bearer'
@@ -137,7 +135,7 @@ class AuthController extends Controller
 
 
 
-    public function register(Request $request)
+    public function register(RegisterRequest $registerRequest)
     {
 
         if (Auth::user()->status !== 'Manager') {
@@ -145,22 +143,14 @@ class AuthController extends Controller
                 'message' => 'Unauthorized'
             ], 403);
         }
-        $validate = $request->validate([
-            'name' => 'required|max:255',
-            'email' => 'required|max:255|email|unique:users,email',
-            'phoneNumber' => 'required|max:50',
-            "classRoom" => 'required',
-            'password' => 'required | confirmed|min:6',
-            'status' => 'required'
 
-        ]);
-        $validate['password'] = Hash::make($validate['password']);
+        $registerRequest['password'] = Hash::make($registerRequest['password']);
 
 
-        $user = User::create($validate);
+        $user = User::create($registerRequest);
 
 
-        if ($validate['status'] === 'Student') {
+        if ($registerRequest['status'] === 'Student') {
             $user->Payment()->create();
         }
 
@@ -209,5 +199,46 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'Logged out successfully'
         ]);
+    }
+
+
+
+
+    public function forgot_password(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email'
+        ]);
+
+
+        $user = User::where('email', $request->email)->first();
+        if (!empty($user)) {
+            $user->remember_token = str::random(40);
+            $user->save();
+            Mail::to($user->email)->send(new ForgotPasswordMail($user));
+            return response()->json(['success' => 'Please check your email and rest your password']);
+        } else {
+            return response()->json(['error' => 'This Email not founed in the system. '], 404);
+        }
+    }
+    public function rest($token, Request $request)
+    {
+        $request->validate([
+            'password' => 'required | confirmed|min:6',
+        ]);
+        $user = User::where('remember_token', $token)->first();
+        if (!empty($user)) {
+            $request->validate([
+                'password' => 'required | confirmed|min:6',
+            ]);
+
+            $user->password = Hash::make($request->password);
+            $user->email_verified_at = date('Y-m-d H:i:s');
+            $user->remember_token = str::random(40);
+            $user->save();
+            return response()->json(['success' => 'Password Successfully reset '], 404);
+        } else {
+            return response()->json(['error' => 'Password and Confirm Password does not match '], 404);
+        }
     }
 }

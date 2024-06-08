@@ -32,6 +32,8 @@ class UserController extends Controller
 
     public function store(CreateUserRequest $request)
     {
+
+        $imagePath = $request->file('image')->store('images', 'public');
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -39,6 +41,7 @@ class UserController extends Controller
             'phoneNumber' => $request->phoneNumber,
             'password' =>   $request['password'] = Hash::make($request['password']),
             'classRoom' => $request->classRoom,
+            'image_path' => $imagePath,
         ]);
         return response()->json(['message' => 'The User Create Succssefully'], 201);
     }

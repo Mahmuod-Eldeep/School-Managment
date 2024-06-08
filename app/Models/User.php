@@ -30,6 +30,7 @@ class User extends Authenticatable
         'payment_status',
         'payment_date',
         'google_id',
+        'image_path',
     ];
 
 

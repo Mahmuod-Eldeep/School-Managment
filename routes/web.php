@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\GoogleAuthController;
 use Illuminate\Support\Facades\Route;
 use App\Mail\Email;
@@ -29,9 +30,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get(uri: '/send', action: function () {
-    Mail::to(users: 'khaldsyrk@gmail.com')->send(new Email());
-    return "Email Send!";
-});
+
 
 //|--------------------------------------------------------------------------
