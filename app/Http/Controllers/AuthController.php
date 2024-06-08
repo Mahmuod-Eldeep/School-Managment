@@ -137,17 +137,17 @@ class AuthController extends Controller
 
     public function register(RegisterRequest $registerRequest)
     {
-
+        $userData = $registerRequest->only(['name', 'email', 'password', 'phoneNumber', 'classRoom', 'status']);
         if (Auth::user()->status !== 'Manager') {
             return response()->json([
                 'message' => 'Unauthorized'
             ], 403);
         }
 
-        $registerRequest['password'] = Hash::make($registerRequest['password']);
+        $userData['password'] = Hash::make($registerRequest['password']);
 
 
-        $user = User::create($registerRequest);
+        $user = User::create($userData);
 
 
         if ($registerRequest['status'] === 'Student') {
