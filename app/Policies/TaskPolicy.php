@@ -13,7 +13,7 @@ class TaskPolicy
      */
     public function viewAny(User $user): bool
     {
-        return true;
+        return  $user->status === "Manager";
     }
 
     /**
@@ -29,7 +29,7 @@ class TaskPolicy
      */
     public function create(User $user): bool
     {
-        return  $user->status === "Manager";
+        return $user->status === "Manager" || $user->status === "Teacher";
     }
 
     /**
@@ -37,7 +37,7 @@ class TaskPolicy
      */
     public function update(User $user, Task $task): bool
     {
-        return  $user->status === "Manager";
+        return $user->status === "Manager" || $user->status === "Teacher";
     }
 
     /**
@@ -45,7 +45,7 @@ class TaskPolicy
      */
     public function delete(User $user, Task $task): bool
     {
-        return  $user->status === "Manager";
+        return $user->status === "Manager" || $user->status === "Teacher";
     }
 
     /**
