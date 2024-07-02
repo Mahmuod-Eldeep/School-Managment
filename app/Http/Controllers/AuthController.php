@@ -138,25 +138,13 @@ class AuthController extends Controller
     public function register(RegisterRequest $registerRequest)
     {
         $userData = $registerRequest->only(['name', 'email', 'password', 'phoneNumber', 'classRoom', 'status']);
-        if (Auth::user()->status !== 'Manager') {
-            return response()->json([
-                'message' => 'Unauthorized'
-            ], 403);
-        }
-
         $userData['password'] = Hash::make($registerRequest['password']);
 
-
         $user = User::create($userData);
-
 
         if ($registerRequest['status'] === 'Student') {
             $user->Payment()->create();
         }
-
-
-
-
         return response()->json([
             'data' => $user,
             // 'acces_token' => $user->createToken('api_token')->plainTextToken,
@@ -236,9 +224,9 @@ class AuthController extends Controller
             $user->email_verified_at = date('Y-m-d H:i:s');
             $user->remember_token = str::random(40);
             $user->save();
-            return response()->json(['success' => 'Password Successfully reset '], 404);
+            return response()->json(['success' => 'Password Successfully reset '], 201);
         } else {
-            return response()->json(['error' => 'Password and Confirm Password does not match '], 404);
+            return response()->json(['error' => 'Password and Confirm Password does not match '], 400);
         }
     }
 }

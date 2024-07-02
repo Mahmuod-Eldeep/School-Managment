@@ -55,6 +55,8 @@ class User extends Authenticatable
         'payment_status' => 'boolean',
     ];
 
+
+
     public function tasks(): HasMany
     {
         return $this->hasMany(Task::class, 'creator_id');
