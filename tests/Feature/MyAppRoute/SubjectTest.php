@@ -1,11 +1,10 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\MyAppRoute;
 
 use App\Traits\FeatureTestTrait;
 use App\Models\Subject;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class SubjectTest extends TestCase
@@ -26,6 +25,7 @@ class SubjectTest extends TestCase
         $subject = Subject::factory()->create();
         $response = $this->authorized_user()->get('/api/subjects/' . $subject->id);
         $response->assertStatus(200);
+        dd($response);
     }
 
     public function test_creat_subject_successfully(): void

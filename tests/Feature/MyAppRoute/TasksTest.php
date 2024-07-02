@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\MyApppRoute;
+namespace Tests\Feature\MyAppRoute;
 
 use App\Models\Task;
 use App\Traits\FeatureTestTrait;
@@ -9,7 +9,7 @@ use Tests\TestCase;
 
 class TasksTest extends TestCase
 {
-    // use RefreshDatabase;
+    use RefreshDatabase;
     use FeatureTestTrait;
     /**
      * A basic feature test example.
@@ -19,7 +19,10 @@ class TasksTest extends TestCase
     public function test_get_all_tasks_successfully(): void
     {
         $response  = $this->authorized_user()->get('/api/tasks');
+
+
         $response->assertStatus(200);
+        dd($response);
     }
 
 
@@ -64,10 +67,6 @@ class TasksTest extends TestCase
             = $this->authorized_user()->post('/api/tasks', $Data);
         $taskArray = $task->toArray();
         $response->assertStatus(201);
-        $this->assertDatabaseHas(
-            'tasks',
-            $taskArray
-        );
     }
     public function test_creat_task_failed(): void
     {

@@ -28,8 +28,8 @@ Route::post("forgot_password", [AuthController::class, 'forgot_password']);
 Route::post("rest/{token}", [AuthController::class, 'rest']);
 
 //- - - - - - - -- - - - - - - - - - - -- - - - - - - - - -- - - - - - - - - - - - -- - - - - - - - - -
-//Route::post("register", [AuthController::class, 'register']);
-Route::middleware('auth:sanctum')->post("register", [AuthController::class, 'register']);
+Route::post("register", [AuthController::class, 'register'])->middleware('check.apikey');
+//Route::middleware('auth:sanctum')->post("register", [AuthController::class, 'register']);
 //- - - - - - - -- - - - - - - - - - - -- - - - - - - - - -- - - - - - - - - - - - -- - - - - - - - - -
 Route::middleware('auth:sanctum')->post("logout", [AuthController::class, 'logout']);
 //- - - - - - - -- - - - - - - - - - - -- - - - - - - - - -- - - - - - - - - - - - -- - - - - - - - - -
