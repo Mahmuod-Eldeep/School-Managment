@@ -15,9 +15,10 @@ class CheckApiKey
      */
     public function handle(Request $request, Closure $next): Response
     {
+        $API_KEY = 'Non-Manger_only-requestINNc54cffsw5e';
         $apiKey = $request->query('api_key');
 
-        if (!$apiKey || $apiKey !== env('API_KEY')) {
+        if (!$apiKey || $apiKey !== $API_KEY) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
         return $next($request);

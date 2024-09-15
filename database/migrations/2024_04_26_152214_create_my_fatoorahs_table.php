@@ -18,7 +18,7 @@ return new class extends Migration
             $table->enum('Payment_Status', ['suspended', 'Paid'])->default('suspended');
             $table->string('Country')->nullable();
             $table->string('Currency')->nullable();
-            $table->string('PaymentId')->nullable();
+            $table->string('Payment_Id')->nullable();
 
 
             $table->timestamps();
