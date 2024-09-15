@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CreateUserRequest;
 use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserResource;
+use App\Models\MyFatoorah;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -43,6 +44,7 @@ class UserController extends Controller
             'classRoom' => $request->classRoom,
             'image_path' => $imagePath,
         ]);
+
         return response()->json(['message' => 'The User Create Succssefully'], 201);
     }
 

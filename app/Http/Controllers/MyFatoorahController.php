@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\PaymentEvent;
+use App\Mail\PaymentConfirmationMail;
+use App\Models\MyFatoorah as ModelsMyFatoorah;
 use App\Models\User;
 use App\Notifications\InvoicePaid;
 use Illuminate\Http\Request;
@@ -13,6 +16,7 @@ use MyFatoorah\Library\API\Payment\MyFatoorahPaymentStatus;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
 
 class MyFatoorahController extends Controller
@@ -112,33 +116,21 @@ class MyFatoorahController extends Controller
 
             $mfObj = new MyFatoorahPaymentStatus($this->mfConfig);
             $data  = $mfObj->getPaymentStatus($paymentId, 'PaymentId');
-            $user =  User::find($data->CustomerReference);
-
             if ($data->InvoiceStatus == "Paid") {
-                // تحديث البيانات باستخدام Query Builder
-                DB::table('my_fatoorahs')
-                    ->where('user_id', $data->CustomerReference) // استبدل بالشرط المناسب
-                    ->update([
-                        'total' => $data->InvoiceValue,
-                        'Payment_Status' => $data->InvoiceStatus,
-                        'Country' =>  $data->InvoiceTransactions[0]->Country,
-                        'Currency' =>  $data->InvoiceTransactions[0]->Currency,
-                        'PaymentId' => $data->InvoiceTransactions[0]->PaymentId,
+                $my_fatoorah = ModelsMyFatoorah::create([
+                    'user_id' => $data->CustomerReference,
+                    'total' => $data->InvoiceValue,
+                    'Payment_Status' => $data->InvoiceStatus,
+                    'Country' =>  $data->InvoiceTransactions[0]->Country,
+                    'Currency' =>  $data->InvoiceTransactions[0]->Currency,
+                    'PaymentId' => $data->InvoiceTransactions[0]->PaymentId,
+                ]);
 
-                    ]);
-
-
-
-                $UserData =   $this->updateUserPaymentStatus($data->CustomerReference);
+                PaymentEvent::dispatch($data);
                 $UserData =   $this->updateUserPaymentdate($data->CustomerReference, $data->CreatedDate);
                 $invoice = "The Payment Request Is Successfully";
             }
-            if ($user) {
-                // استخدم المستخدم في دالة الإشعار
-                Notification::send($user, new InvoicePaid($invoice));
-            } else {
-                return null;
-            }
+
 
 
             $message = $this->getTestMessage($data->InvoiceStatus, $data->InvoiceError);
@@ -154,9 +146,6 @@ class MyFatoorahController extends Controller
 
         return response()->json($response);
     }
-
-    //-----------------------------------------------------------------------------------------------------------------------------------------
-
 
 
     //-----------------------------------------------------------------------------------------------------------------------------------------
@@ -201,7 +190,6 @@ class MyFatoorahController extends Controller
             return response()->json(['IsSuccess' => false, 'Message' => $exMessage]);
         }
     }
-
     //-----------------------------------------------------------------------------------------------------------------------------------------
     private function changeTransactionStatus($inputData)
     {
@@ -228,11 +216,8 @@ class MyFatoorahController extends Controller
         //4. Update order transaction status on your system
         return ['IsSuccess' => true, 'Message' => $message, 'Data' => $inputData];
     }
-
     //-----------------------------------------------------------------------------------------------------------------------------------------
 
-
-    //-----------------------------------------------------------------------------------------------------------------------------------------
     private function getTestMessage($status, $error)
     {
         if ($status == 'Paid') {
@@ -244,18 +229,6 @@ class MyFatoorahController extends Controller
         } else if ($status == 'Expired') {
             return $error;
         }
-    }
-
-    //-----------------------------------------------------Update_User_PaymentStatus------------------------------------------------------------------------------------
-
-    private function updateUserPaymentStatus($inputData)
-    {
-
-
-        User::where('id', $inputData)->update(['payment_status' => 'Paid']);
-        $user = User::find($inputData);
-
-        return $user;
     }
 
     private function updateUserPaymentdate($inputData, $PaymentDate)

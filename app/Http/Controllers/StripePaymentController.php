@@ -12,12 +12,12 @@ class StripePaymentController extends Controller
     public function stripePost(Request $request)
     {
         try {
-            // التحقق من أن المستخدم قد قام بتسجيل الدخول
+
             if (Auth::check()) {
-                // تعيين مفتاح API الخاص بـ Stripe
+
                 Stripe::setApiKey(env('STRIPE_SECRET'));
 
-                // استخدام رمز اختباري للبطاقة (استبدال 'tok_test...' برمز اختباري فعلي)
+
                 $token = $request->input('token');
 
                 // إنشاء عملية شحن باستخدام الرمز الاختباري

@@ -4,13 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
+use App\Http\Resources\UserResource;
 use App\Mail\ForgotPasswordMail;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 /**
  * @OA\Schema(
@@ -146,7 +147,7 @@ class AuthController extends Controller
             $user->Payment()->create();
         }
         return response()->json([
-            'data' => $user,
+            'data' =>   new UserResource($user),
             // 'acces_token' => $user->createToken('api_token')->plainTextToken,
             // 'token_type' => 'Bearer'
         ], 201);
