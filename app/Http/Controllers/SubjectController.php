@@ -11,6 +11,19 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Spatie\QueryBuilder\QueryBuilder;
 
+
+/**
+ * @OA\SecurityScheme(
+ *     type="http",
+ *     description="Use a bearer token to access these endpoints",
+ *     name="Authorization",
+ *     in="header",
+ *     scheme="bearer",
+ *     bearerFormat="JWT",
+ *     securityScheme="BearerAuth",
+ * )
+ */
+
 /**
  * @OA\Schema(
  *     schema="Subject",
@@ -21,6 +34,8 @@ use Spatie\QueryBuilder\QueryBuilder;
  *     @OA\Property(property="creator_id", type="integer", example="1"),
  * )
  */
+
+
 
 class SubjectController extends Controller
 {
@@ -34,8 +49,8 @@ class SubjectController extends Controller
      *     path="/api/subjects",
      *     tags={"Subjects"},
      *     summary="Get all subjects",
+     *   security={{"BearerAuth": {}}},
      *     operationId="indexSubjects",
-     *     security={{"BearerAuth": {}}},
      *     @OA\Response(
      *         response=200,
      *         description="Successful operation",
@@ -65,19 +80,28 @@ class SubjectController extends Controller
      *     tags={"Subjects"},
      *     summary="Create a new subject",
      *     operationId="storeSubject",
-     *     security={{"BearerAuth": {}}},
      *     @OA\RequestBody(
      *         required=true,
-     *         description="Subject data",
-     *         @OA\JsonContent(
-     *             required={"title"},
-     *             @OA\Property(property="title", type="string", example="Mathematics")
+     *         description="Submit the subject data using the following form:
+     *         </form>",
+     *         @OA\MediaType(
+     *             mediaType="application/x-www-form-urlencoded",
+     *             @OA\Schema(
+     *                 required={"title"},
+     *                 @OA\Property(
+     *                     property="title",
+     *                     type="string",
+     *                     example="Mathematics",
+     *                     description="The title of the subject."
+     *                 )
+     *             )
      *         )
      *     ),
      *     @OA\Response(
      *         response=201,
      *         description="Subject created successfully",
      *         @OA\JsonContent(
+     *             type="object",
      *             @OA\Property(property="message", type="string", example="Subject created successfully"),
      *             @OA\Property(property="data", ref="#/components/schemas/Subject")
      *         )
@@ -89,20 +113,10 @@ class SubjectController extends Controller
      *     @OA\Response(
      *         response=422,
      *         description="Unprocessable Entity"
-     *     ),
-     *     security={{"BearerAuth": {}}},
-     *     @OA\Parameter(
-     *         name="Authorization",
-     *         in="header",
-     *         required=true,
-     *         description="Bearer token",
-     *         @OA\Schema(
-     *             type="string",
-     *             default="Bearer your_access_token_here"
-     *         )
      *     )
      * )
      */
+
 
 
     public function store(StoreSubjectRequest $request)
@@ -118,7 +132,6 @@ class SubjectController extends Controller
      *     tags={"Subjects"},
      *     summary="Get a specific subject",
      *     operationId="showSubject",
-     *     security={{"BearerAuth": {}}},
      *     @OA\Parameter(
      *         name="subject",
      *         in="path",
@@ -157,11 +170,10 @@ class SubjectController extends Controller
      *     tags={"Subjects"},
      *     summary="Update a specific subject",
      *     operationId="updateSubject",
-     *     security={{"BearerAuth": {}}},
      *     @OA\Parameter(
      *         name="subject",
      *         in="path",
-     *         description="ID of the subject",
+     *         description="ID of the subject to be updated",
      *         required=true,
      *         @OA\Schema(
      *             type="integer",
@@ -170,13 +182,30 @@ class SubjectController extends Controller
      *     ),
      *     @OA\RequestBody(
      *         required=true,
-     *         description="Subject data",
-     *         @OA\JsonContent(ref="#/components/schemas/Subject")
+     *         description="Submit the updated subject data using the following form:
+     *         <form id='updateSubjectForm'>
+     *         <label for='title'>Subject Title:</label>
+     *         <input type='text' id='title' name='title' required placeholder='Enter updated subject title'>
+     *         <button type='submit'>Update Subject</button>
+     *         </form>",
+     *         @OA\MediaType(
+     *             mediaType="application/x-www-form-urlencoded",
+     *             @OA\Schema(
+     *                 required={"title"},
+     *                 @OA\Property(
+     *                     property="title",
+     *                     type="string",
+     *                     example="Mathematics",
+     *                     description="The title of the subject."
+     *                 )
+     *             )
+     *         )
      *     ),
      *     @OA\Response(
      *         response=200,
      *         description="Subject updated successfully",
      *         @OA\JsonContent(
+     *             type="object",
      *             @OA\Property(property="message", type="string", example="Subject updated successfully"),
      *             @OA\Property(property="data", ref="#/components/schemas/Subject")
      *         )
@@ -196,6 +225,8 @@ class SubjectController extends Controller
      * )
      */
 
+
+
     public function update(UpdateSubjectRequest $request, Subject $Subject)
     {
         $validated = $request->validated();
@@ -209,7 +240,6 @@ class SubjectController extends Controller
      *     tags={"Subjects"},
      *     summary="Delete a specific subject",
      *     operationId="deleteSubject",
-     *     security={{"BearerAuth": {}}},
      *     @OA\Parameter(
      *         name="subject",
      *         in="path",

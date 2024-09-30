@@ -13,14 +13,34 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 /**
  * @OA\Schema(
- *     schema="task",
- *     title="task",
- *     description="task data",
- *     @OA\Property(property="id", type="integer", example="1"),
- *     @OA\Property(property="title", type="string", example="Mathematics"),
- *     @OA\Property(property="creator_id", type="integer", example="1"),
+ *     schema="Task",
+ *     type="object",
+ *     required={"title"},
+ *     @OA\Property(
+ *         property="id",
+ *         type="integer",
+ *         description="ID of the task"
+ *     ),
+ *     @OA\Property(
+ *         property="title",
+ *         type="string",
+ *         description="Title of the task"
+ *     ),
+ *     @OA\Property(
+ *         property="created_at",
+ *         type="string",
+ *         format="date-time",
+ *         description="Task creation timestamp"
+ *     ),
+ *     @OA\Property(
+ *         property="updated_at",
+ *         type="string",
+ *         format="date-time",
+ *         description="Task update timestamp"
+ *     )
  * )
  */
+
 class TaskController extends Controller
 {
     public function __construct()
@@ -32,15 +52,14 @@ class TaskController extends Controller
      * @OA\Get(
      *     path="/api/tasks",
      *     tags={"task"},
-     *     summary="Get all task",
-     *     operationId="indextask",
-     *     security={{"BearerAuth": {}}},
+     *     summary="Get all tasks",
+     *     operationId="indexTask",
      *     @OA\Response(
      *         response=200,
      *         description="Successful operation",
      *         @OA\JsonContent(
      *             type="array",
-     *             @OA\Items(ref="#/components/schemas/task")
+     *             @OA\Items(ref="#/components/schemas/Task")
      *         ),
      *     ),
      *     @OA\Response(
@@ -51,22 +70,20 @@ class TaskController extends Controller
      */
     public function index(Request $request)
     {
-
-
         $tasks = QueryBuilder::for(Task::class)
-            ->allowedFilters('is_Done')
+            ->allowedFilters('is_done')
             ->defaultSort('created_at')
             ->allowedSorts(['title', 'is_done', 'created_at'])
             ->paginate();
         return new TaskCollection($tasks);
     }
+
     /**
      * @OA\Get(
      *     path="/api/tasks/{task}",
      *     tags={"task"},
      *     summary="Get a specific task",
-     *     operationId="showtask",
-     *     security={{"BearerAuth": {}}},
+     *     operationId="showTask",
      *     @OA\Parameter(
      *         name="task",
      *         in="path",
@@ -80,7 +97,7 @@ class TaskController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Successful operation",
-     *         @OA\JsonContent(ref="#/components/schemas/task")
+     *         @OA\JsonContent(ref="#/components/schemas/Task")
      *     ),
      *     @OA\Response(
      *         response=401,
@@ -88,36 +105,49 @@ class TaskController extends Controller
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="task not found"
+     *         description="Task not found"
      *     )
      * )
      */
-
     public function show(Request $request, Task $task)
     {
         return new TaskResource($task);
     }
+
     /**
      * @OA\Post(
      *     path="/api/tasks",
      *     tags={"task"},
      *     summary="Create a new task",
-     *     operationId="storetask",
-     *     security={{"BearerAuth": {}}},
+     *     operationId="storeTask",
      *     @OA\RequestBody(
      *         required=true,
-     *         description="task data",
-     *         @OA\JsonContent(
-     *             required={"title"},
-     *             @OA\Property(property="title", type="string", example="Mathematics")
+     *         description="Submit the task data using the following form:
+     *         <form id='taskForm'>
+     *         <label for='title'>Task Title:</label>
+     *         <input type='text' id='title' name='title' required placeholder='Enter task title'>
+     *         <button type='submit'>Create Task</button>
+     *         </form>",
+     *         @OA\MediaType(
+     *             mediaType="application/x-www-form-urlencoded",
+     *             @OA\Schema(
+     *                 required={"title"},
+     *                 @OA\Property(
+     *                     property="title",
+     *                     type="string",
+     *                     example="Mathematics",
+     *                     description="The title of the task."
+     *                 )
+     *             )
      *         )
      *     ),
      *     @OA\Response(
      *         response=201,
-     *         description="task created successfully",
+     *         description="Task created successfully",
      *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="task created successfully"),
-     *             @OA\Property(property="data", ref="#/components/schemas/task")
+     *             type="object",
+     *             @OA\Property(property="message", type="string", example="Task created successfully"),
+     *             @OA\Property(property="data", ref="#/components/schemas/Task")
      *         )
      *     ),
      *     @OA\Response(
@@ -127,39 +157,26 @@ class TaskController extends Controller
      *     @OA\Response(
      *         response=422,
      *         description="Unprocessable Entity"
-     *     ),
-     *     security={{"BearerAuth": {}}},
-     *     @OA\Parameter(
-     *         name="Authorization",
-     *         in="header",
-     *         required=true,
-     *         description="Bearer token",
-     *         @OA\Schema(
-     *             type="string",
-     *             default="Bearer your_access_token_here"
-     *         )
      *     )
      * )
      */
-
-
     public function store(StoreTaskRequest $request)
     {
         $validated = $request->validated();
         $task = Auth::user()->tasks()->create($validated);
         return new TaskResource($task);
     }
+
     /**
      * @OA\Put(
      *     path="/api/tasks/{task}",
      *     tags={"task"},
      *     summary="Update a specific task",
-     *     operationId="updatetask",
-     *     security={{"BearerAuth": {}}},
+     *     operationId="updateTask",
      *     @OA\Parameter(
      *         name="task",
      *         in="path",
-     *         description="ID of the task",
+     *         description="ID of the task to be updated",
      *         required=true,
      *         @OA\Schema(
      *             type="integer",
@@ -168,15 +185,23 @@ class TaskController extends Controller
      *     ),
      *     @OA\RequestBody(
      *         required=true,
-     *         description="task data",
-     *         @OA\JsonContent(ref="#/components/schemas/task")
+     *         description="Submit the updated task data using the following form:
+     *         <form id='updateTaskForm'>
+     *         <label for='title'>Task Title:</label>
+     *         <input type='text' id='title' name='title' required placeholder='Enter updated task title'>
+     *         <button type='submit'>Update Task</button>
+     *         </form>",
+     *         @OA\JsonContent(
+     *             required={"title"},
+     *             @OA\Property(property="title", type="string", example="Mathematics")
+     *         )
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="task updated successfully",
+     *         description="Task updated successfully",
      *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="task updated successfully"),
-     *             @OA\Property(property="data", ref="#/components/schemas/task")
+     *             @OA\Property(property="message", type="string", example="Task updated successfully"),
+     *             @OA\Property(property="data", ref="#/components/schemas/Task")
      *         )
      *     ),
      *     @OA\Response(
@@ -185,7 +210,7 @@ class TaskController extends Controller
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="task not found"
+     *         description="Task not found"
      *     ),
      *     @OA\Response(
      *         response=422,
@@ -199,13 +224,13 @@ class TaskController extends Controller
         $task->update($validated);
         return new TaskResource($task);
     }
+
     /**
      * @OA\Delete(
      *     path="/api/tasks/{task}",
      *     tags={"task"},
      *     summary="Delete a specific task",
-     *     operationId="deletetask",
-     *     security={{"BearerAuth": {}}},
+     *     operationId="deleteTask",
      *     @OA\Parameter(
      *         name="task",
      *         in="path",
@@ -218,7 +243,7 @@ class TaskController extends Controller
      *     ),
      *     @OA\Response(
      *         response=204,
-     *         description="task deleted successfully"
+     *         description="Task deleted successfully"
      *     ),
      *     @OA\Response(
      *         response=401,
@@ -226,14 +251,12 @@ class TaskController extends Controller
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="task not found"
+     *         description="Task not found"
      *     )
      * )
      */
-
     public function destroy(Request $request, Task $task)
     {
-
         $task->delete();
         return response()->noContent();
     }

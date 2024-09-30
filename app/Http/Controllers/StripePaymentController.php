@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth; // استدعاء الفصل Auth
+use Illuminate\Support\Facades\Auth;
 use Stripe\Stripe;
 
 class StripePaymentController extends Controller

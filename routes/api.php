@@ -1,16 +1,21 @@
 <?php
 
-use App\Http\Controllers\SubjectController;
-use  App\Http\Controllers\TaskController;
-use  App\Http\Controllers\AuthController;
-use App\Http\Controllers\emailcontroller;
+use App\Http\Controllers\Auth\ForgotPassword\ForgotPasswordController;
+use App\Http\Controllers\TaskController;
+use App\Http\Controllers\Auth\Login\LoginController;
+use App\Http\Controllers\Auth\Logout\LogoutController;
+use App\Http\Controllers\Auth\Register\RegisterController;
+use App\Http\Controllers\Auth\RestPassword\RestController;
 use App\Http\Controllers\MyFatoorahController;
 use App\Http\Controllers\StripePaymentController;
+use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\UserController;
-use App\Mail\Email;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use  Illuminate\Support\Facades\Mail;
+
+
+
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -23,23 +28,24 @@ use  Illuminate\Support\Facades\Mail;
 |
 */
 
-Route::post("login", [AuthController::class, 'login']);
-Route::post("forgot_password", [AuthController::class, 'forgot_password']);
-Route::post("rest/{token}", [AuthController::class, 'rest']);
-
 //- - - - - - - -- - - - - - - - - - - -- - - - - - - - - -- - - - - - - - - - - - -- - - - - - - - - -
-Route::post("register", [AuthController::class, 'register'])->middleware('check.apikey');
-//Route::middleware('auth:sanctum')->post("register", [AuthController::class, 'register']);
+Route::post("forgot_password", [ForgotPasswordController::class, 'forgot_password']);
 //- - - - - - - -- - - - - - - - - - - -- - - - - - - - - -- - - - - - - - - - - - -- - - - - - - - - -
-Route::middleware('auth:sanctum')->post("logout", [AuthController::class, 'logout']);
+Route::post("restpassowrd/{token}", [RestController::class, 'rest']);
+//- - - - - - - -- - - - - - - - - - - -- - - - - - - - - -- - - - - - - - - - - - -- - - - - - - - - -
+Route::post("login", [LoginController::class, 'login']);
+//- - - - - - - -- - - - - - - - - - - -- - - - - - - - - -- - - - - - - - - - - - -- - - - - - - - - -
+Route::post("register", [RegisterController::class, 'register'])->middleware('check.apikey');
+//- - - - - - - -- - - - - - - - - - - -- - - - - - - - - -- - - - - - - - - - - - -- - - - - - - - - -
+Route::middleware('auth:sanctum')->post("logout", [LogoutController::class, 'logout']);
 //- - - - - - - -- - - - - - - - - - - -- - - - - - - - - -- - - - - - - - - - - - -- - - - - - - - - -
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('tasks', TaskController::class);
     Route::apiResource('subjects', SubjectController::class);
     Route::apiResource('users', UserController::class);
 });
-//- - - - - - - -- - - - - - - - - - - -- - - - - - - - - -- - - - - - - - - - - - -- - - - - - - - - -
+// //- - - - - - - -- - - - - - - - - - - -- - - - - - - - - -- - - - - - - - - - - - -- - - - - - - - - -
 Route::middleware('auth:sanctum')->post("stripe", [StripePaymentController::class, 'stripePost']);
-//- - - - - - - -- - - - - - - - - - - -- - - - - - - - - -- - - - - - - - - - - - -- - - - - - - - - -
+// //- - - - - - - -- - - - - - - - - - - -- - - - - - - - - -- - - - - - - - - - - - -- - - - - - - - - -
 Route::middleware('auth:sanctum')->post("Myfatoora", [MyFatoorahController::class, 'index']);
-//- - - - - - - -- - - - - - - - - - - -- - - - - - - - - -- - - - - - - - - - - - -- - - - - - - - - -
+// //- - - - - - - -- - - - - - - - - - - -- - - - - - - - - -- - - - - - - - - - - - -- - - - - - - - - -

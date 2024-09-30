@@ -13,19 +13,80 @@
         "version": "1.0.0"
     },
     "paths": {
+        "/api/forgot_password": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Send a password reset email",
+                "description": "Use the provided email to receive a password reset link.",
+                "operationId": "6d598f146d99d432d9e8d3ae5e79e524",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "properties": {
+                                    "email": {
+                                        "description": "User email",
+                                        "type": "string",
+                                        "format": "email"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Password reset email sent successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "string",
+                                            "example": "Please check your email and reset your password"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Email not found in the system",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "This Email not found in the system."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/login": {
             "post": {
                 "tags": [
-                    "Login"
+                    "Authentication"
                 ],
                 "summary": "Logs user into system",
-                "description": "You Can Use this Email => [Mahmuodislam@gmail.com] For Login As a Manager And This Password [password]",
+                "description": "You Can Use this Email => [Mahmuodislam@gmail.com] For Login As a Manager And This Password => [Passwo@rd]",
                 "operationId": "loginUser",
                 "requestBody": {
                     "description": "User login credentials",
                     "required": true,
                     "content": {
-                        "application/json": {
+                        "application/x-www-form-urlencoded": {
                             "schema": {
                                 "required": [
                                     "email",
@@ -33,11 +94,13 @@
                                 ],
                                 "properties": {
                                     "email": {
+                                        "description": "User's email address",
                                         "type": "string",
                                         "format": "email",
                                         "example": "user@example.com"
                                     },
                                     "password": {
+                                        "description": "User's password",
                                         "type": "string",
                                         "format": "password",
                                         "example": "password"
@@ -51,46 +114,92 @@
                 "responses": {
                     "200": {
                         "description": "successful operation",
-                        "headers": {
-                            "X-Rate-Limit": {
-                                "description": "calls per hour allowed by the user",
-                                "schema": {
-                                    "type": "integer",
-                                    "format": "int32"
-                                }
-                            },
-                            "X-Expires-After": {
-                                "description": "date in UTC when token expires",
-                                "schema": {
-                                    "type": "string",
-                                    "format": "datetime"
-                                }
-                            }
-                        },
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "string"
+                                    "properties": {
+                                        "access_token": {
+                                            "description": "JWT access token",
+                                            "type": "string"
+                                        },
+                                        "token_type": {
+                                            "description": "Token type",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "description": "Invalid email/password supplied"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
                     }
                 }
+            }
+        },
+        "/api/logout": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Logs out the currently authenticated user",
+                "operationId": "logoutUser",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Logged out successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
             }
         },
         "/api/register": {
             "post": {
                 "tags": [
-                    "Crate a New User"
+                    "Authentication"
                 ],
                 "summary": "Registers a new user",
-                "description": "Only managers can create an account for students and teachers",
+                "description": "Only managers can create an account for students and teachers. Use the API Key.",
                 "operationId": "registerUser",
+                "parameters": [
+                    {
+                        "name": "api_key",
+                        "in": "query",
+                        "description": "API key for authentication",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "requestBody": {
                     "description": "User registration data",
                     "required": true,
                     "content": {
-                        "application/json": {
+                        "multipart/form-data": {
                             "schema": {
                                 "required": [
                                     "name",
@@ -119,11 +228,20 @@
                                         "format": "password",
                                         "example": "password"
                                     },
+                                    "phoneNumber": {
+                                        "type": "string",
+                                        "example": "123456789"
+                                    },
+                                    "classRoom": {
+                                        "type": "string",
+                                        "example": "Class A"
+                                    },
                                     "status": {
                                         "type": "string",
                                         "enum": [
                                             "Manager",
-                                            "Employee"
+                                            "Teacher",
+                                            "Student"
                                         ],
                                         "example": "Manager"
                                     }
@@ -158,47 +276,58 @@
                     "422": {
                         "description": "Validation error"
                     }
-                },
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ]
+                }
             }
         },
-        "/api/logout": {
+        "/api/Myfatoora": {
             "post": {
                 "tags": [
-                    "Logout"
+                    "Payments"
                 ],
-                "summary": "Logs out the currently authenticated user",
-                "operationId": "logoutUser",
-                "responses": {
-                    "200": {
-                        "description": "Successful operation",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Logged out successfully"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
+                "summary": "Redirect to MyFatoorah Invoice URL",
+                "description": "Initiate a payment through MyFatoorah and retrieve the invoice URL.",
+                "operationId": "getMyFatoorahInvoice",
+                "parameters": [
+                    {
+                        "name": "pmid",
+                        "in": "query",
+                        "description": "Payment method ID (0 for MyFatoorah invoice, 1 for Knet in test mode).",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 2
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized"
-                    }
-                },
-                "security": [
                     {
-                        "BearerAuth": []
+                        "name": "total",
+                        "in": "query",
+                        "description": "Total amount for the invoice.",
+                        "required": true,
+                        "schema": {
+                            "type": "number",
+                            "format": "float",
+                            "example": 30
+                        }
+                    },
+                    {
+                        "name": "currency_type",
+                        "in": "query",
+                        "description": "Currency type for the invoice.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "USD"
+                        }
                     }
-                ]
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response with the invoice URL."
+                    },
+                    "400": {
+                        "description": "Error response."
+                    }
+                }
             }
         },
         "/api/subjects": {
@@ -238,29 +367,18 @@
                 ],
                 "summary": "Create a new subject",
                 "operationId": "storeSubject",
-                "parameters": [
-                    {
-                        "name": "Authorization",
-                        "in": "header",
-                        "description": "Bearer token",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "default": "Bearer your_access_token_here"
-                        }
-                    }
-                ],
                 "requestBody": {
-                    "description": "Subject data",
+                    "description": "Submit the subject data using the following form:\n     *         </form>",
                     "required": true,
                     "content": {
-                        "application/json": {
+                        "application/x-www-form-urlencoded": {
                             "schema": {
                                 "required": [
                                     "title"
                                 ],
                                 "properties": {
                                     "title": {
+                                        "description": "The title of the subject.",
                                         "type": "string",
                                         "example": "Mathematics"
                                     }
@@ -296,12 +414,7 @@
                     "422": {
                         "description": "Unprocessable Entity"
                     }
-                },
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ]
+                }
             }
         },
         "/api/subjects/{subject}": {
@@ -340,12 +453,7 @@
                     "404": {
                         "description": "Subject not found"
                     }
-                },
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ]
+                }
             },
             "put": {
                 "tags": [
@@ -357,7 +465,7 @@
                     {
                         "name": "subject",
                         "in": "path",
-                        "description": "ID of the subject",
+                        "description": "ID of the subject to be updated",
                         "required": true,
                         "schema": {
                             "type": "integer",
@@ -366,12 +474,22 @@
                     }
                 ],
                 "requestBody": {
-                    "description": "Subject data",
+                    "description": "Submit the updated subject data using the following form:\n     *         <form id='updateSubjectForm'>\n     *         <label for='title'>Subject Title:</label>\n     *         <input type='text' id='title' name='title' required placeholder='Enter updated subject title'>\n     *         <button type='submit'>Update Subject</button>\n     *         </form>",
                     "required": true,
                     "content": {
-                        "application/json": {
+                        "application/x-www-form-urlencoded": {
                             "schema": {
-                                "$ref": "#/components/schemas/Subject"
+                                "required": [
+                                    "title"
+                                ],
+                                "properties": {
+                                    "title": {
+                                        "description": "The title of the subject.",
+                                        "type": "string",
+                                        "example": "Mathematics"
+                                    }
+                                },
+                                "type": "object"
                             }
                         }
                     }
@@ -405,12 +523,7 @@
                     "422": {
                         "description": "Unprocessable Entity"
                     }
-                },
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ]
+                }
             },
             "delete": {
                 "tags": [
@@ -440,12 +553,7 @@
                     "404": {
                         "description": "Subject not found"
                     }
-                },
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ]
+                }
             }
         },
         "/api/tasks": {
@@ -453,8 +561,8 @@
                 "tags": [
                     "task"
                 ],
-                "summary": "Get all task",
-                "operationId": "indextask",
+                "summary": "Get all tasks",
+                "operationId": "indexTask",
                 "responses": {
                     "200": {
                         "description": "Successful operation",
@@ -463,7 +571,7 @@
                                 "schema": {
                                     "type": "array",
                                     "items": {
-                                        "$ref": "#/components/schemas/task"
+                                        "$ref": "#/components/schemas/Task"
                                     }
                                 }
                             }
@@ -472,33 +580,122 @@
                     "401": {
                         "description": "Unauthorized"
                     }
-                },
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ]
+                }
             },
             "post": {
                 "tags": [
                     "task"
                 ],
                 "summary": "Create a new task",
-                "operationId": "storetask",
+                "operationId": "storeTask",
+                "requestBody": {
+                    "description": "Submit the task data using the following form:\n     *         <form id='taskForm'>\n     *         <label for='title'>Task Title:</label>\n     *         <input type='text' id='title' name='title' required placeholder='Enter task title'>\n     *         <button type='submit'>Create Task</button>\n     *         </form>",
+                    "required": true,
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "required": [
+                                    "title"
+                                ],
+                                "properties": {
+                                    "title": {
+                                        "description": "The title of the task.",
+                                        "type": "string",
+                                        "example": "Mathematics"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Task created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Task created successfully"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Task"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity"
+                    }
+                }
+            }
+        },
+        "/api/tasks/{task}": {
+            "get": {
+                "tags": [
+                    "task"
+                ],
+                "summary": "Get a specific task",
+                "operationId": "showTask",
                 "parameters": [
                     {
-                        "name": "Authorization",
-                        "in": "header",
-                        "description": "Bearer token",
+                        "name": "task",
+                        "in": "path",
+                        "description": "ID of the task",
                         "required": true,
                         "schema": {
-                            "type": "string",
-                            "default": "Bearer your_access_token_here"
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Task"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Task not found"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "task"
+                ],
+                "summary": "Update a specific task",
+                "operationId": "updateTask",
+                "parameters": [
+                    {
+                        "name": "task",
+                        "in": "path",
+                        "description": "ID of the task to be updated",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
                         }
                     }
                 ],
                 "requestBody": {
-                    "description": "task data",
+                    "description": "Submit the updated task data using the following form:\n     *         <form id='updateTaskForm'>\n     *         <label for='title'>Task Title:</label>\n     *         <input type='text' id='title' name='title' required placeholder='Enter updated task title'>\n     *         <button type='submit'>Update Task</button>\n     *         </form>",
                     "required": true,
                     "content": {
                         "application/json": {
@@ -518,124 +715,18 @@
                     }
                 },
                 "responses": {
-                    "201": {
-                        "description": "task created successfully",
+                    "200": {
+                        "description": "Task updated successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "properties": {
                                         "message": {
                                             "type": "string",
-                                            "example": "task created successfully"
+                                            "example": "Task updated successfully"
                                         },
                                         "data": {
-                                            "$ref": "#/components/schemas/task"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "422": {
-                        "description": "Unprocessable Entity"
-                    }
-                },
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ]
-            }
-        },
-        "/api/tasks/{task}": {
-            "get": {
-                "tags": [
-                    "task"
-                ],
-                "summary": "Get a specific task",
-                "operationId": "showtask",
-                "parameters": [
-                    {
-                        "name": "task",
-                        "in": "path",
-                        "description": "ID of the task",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "format": "int64"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful operation",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/task"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized"
-                    },
-                    "404": {
-                        "description": "task not found"
-                    }
-                },
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ]
-            },
-            "put": {
-                "tags": [
-                    "task"
-                ],
-                "summary": "Update a specific task",
-                "operationId": "updatetask",
-                "parameters": [
-                    {
-                        "name": "task",
-                        "in": "path",
-                        "description": "ID of the task",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "format": "int64"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "description": "task data",
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/task"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "task updated successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "task updated successfully"
-                                        },
-                                        "data": {
-                                            "$ref": "#/components/schemas/task"
+                                            "$ref": "#/components/schemas/Task"
                                         }
                                     },
                                     "type": "object"
@@ -647,24 +738,19 @@
                         "description": "Unauthorized"
                     },
                     "404": {
-                        "description": "task not found"
+                        "description": "Task not found"
                     },
                     "422": {
                         "description": "Unprocessable Entity"
                     }
-                },
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ]
+                }
             },
             "delete": {
                 "tags": [
                     "task"
                 ],
                 "summary": "Delete a specific task",
-                "operationId": "deletetask",
+                "operationId": "deleteTask",
                 "parameters": [
                     {
                         "name": "task",
@@ -679,20 +765,235 @@
                 ],
                 "responses": {
                     "204": {
-                        "description": "task deleted successfully"
+                        "description": "Task deleted successfully"
                     },
                     "401": {
                         "description": "Unauthorized"
                     },
                     "404": {
-                        "description": "task not found"
+                        "description": "Task not found"
+                    }
+                }
+            }
+        },
+        "/users": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get all users",
+                "operationId": "7e2f5799553ec93c9c43e2a58490d447",
+                "responses": {
+                    "200": {
+                        "description": "Successfully fetched users",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Create a new user",
+                "operationId": "a1fce870c566eb5fc0cf3178ec5d2fed",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "description": "Name of the user",
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "description": "User email",
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "status": {
+                                        "description": "User status",
+                                        "type": "string"
+                                    },
+                                    "phoneNumber": {
+                                        "description": "User phone number",
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "description": "User password",
+                                        "type": "string"
+                                    },
+                                    "classRoom": {
+                                        "description": "User class room",
+                                        "type": "string"
+                                    },
+                                    "image": {
+                                        "description": "User profile image",
+                                        "type": "file"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
                     }
                 },
-                "security": [
-                    {
-                        "BearerAuth": []
+                "responses": {
+                    "201": {
+                        "description": "User created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserResource"
+                                }
+                            }
+                        }
                     }
-                ]
+                }
+            }
+        },
+        "/users/{id}": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get user by ID",
+                "operationId": "910a0c7cf580e1c605648d82a4e57f46",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Update user by ID",
+                "operationId": "ddfe232db1870b82493bf8bd25596d37",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "description": "Name of the user",
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "description": "User email",
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "status": {
+                                        "description": "User status",
+                                        "type": "string"
+                                    },
+                                    "phoneNumber": {
+                                        "description": "User phone number",
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "description": "User password",
+                                        "type": "string"
+                                    },
+                                    "classRoom": {
+                                        "description": "User class room",
+                                        "type": "string"
+                                    },
+                                    "image": {
+                                        "description": "User profile image",
+                                        "type": "file"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Delete user by ID",
+                "operationId": "43dd20becb1f47444e484cbb18ce345c",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                }
             }
         }
     },
@@ -746,30 +1047,79 @@
                 },
                 "type": "object"
             },
-            "task": {
-                "title": "task",
-                "description": "task data",
+            "Task": {
+                "required": [
+                    "title"
+                ],
                 "properties": {
                     "id": {
-                        "type": "integer",
-                        "example": "1"
+                        "description": "ID of the task",
+                        "type": "integer"
                     },
                     "title": {
-                        "type": "string",
-                        "example": "Mathematics"
+                        "description": "Title of the task",
+                        "type": "string"
                     },
-                    "creator_id": {
-                        "type": "integer",
-                        "example": "1"
+                    "created_at": {
+                        "description": "Task creation timestamp",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "description": "Task update timestamp",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "UserResource": {
+                "description": "User resource",
+                "properties": {
+                    "id": {
+                        "description": "User ID",
+                        "type": "integer"
+                    },
+                    "name": {
+                        "description": "User name",
+                        "type": "string"
+                    },
+                    "email": {
+                        "description": "User email",
+                        "type": "string"
+                    },
+                    "status": {
+                        "description": "User status",
+                        "type": "string"
+                    },
+                    "phoneNumber": {
+                        "description": "User phone number",
+                        "type": "string"
+                    },
+                    "classRoom": {
+                        "description": "User class room",
+                        "type": "string"
+                    },
+                    "image_path": {
+                        "description": "Image path",
+                        "type": "string"
                     }
                 },
                 "type": "object"
             }
         },
-        "responses": {
-            "400": {
-                "description": "Invalid email/password supplied"
+        "securitySchemes": {
+            "sanctum": {
+                "type": "apiKey",
+                "description": "Enter token in format (Bearer <token>)",
+                "name": "Authorization",
+                "in": "header"
             }
         }
-    }
+    },
+    "security": [
+        {
+            "sanctum": []
+        }
+    ]
 }
