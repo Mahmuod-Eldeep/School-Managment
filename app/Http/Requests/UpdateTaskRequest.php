@@ -26,9 +26,14 @@ class UpdateTaskRequest extends FormRequest
         return [
             'title' => 'sometimes|required|max:255',
             'is_Done' => 'sometimes|boolean',
-            'project_id' => "required"
+            'subject_id' => 'sometimes|exists:subjects,id',
+        ];
+    }
 
-
+    public function messages()
+    {
+        return [
+            'subject_id.exists' => 'The subject_id does not exist.',
         ];
     }
 }

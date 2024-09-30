@@ -2,12 +2,19 @@
 
 namespace App\Providers;
 
+use App\Events\PaymentEvent;
+use App\Events\SendEMailEvent;
+use App\Listeners\PaymentComfirmation;
+use App\Listeners\SendEmailListener;
+use App\Listeners\UpdateStudentStatus;
 use App\Models\Subject;
 use App\Observers\SubjectObserver;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Event;
+
+
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -20,6 +27,11 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
+        PaymentEvent::class => [
+            PaymentComfirmation::class,
+            UpdateStudentStatus::class,
+        ],
+
     ];
 
     /**

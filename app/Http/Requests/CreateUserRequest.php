@@ -28,7 +28,7 @@ class CreateUserRequest extends FormRequest
             'phoneNumber' => "required|unique:users,phoneNumber",
             "classRoom" => "required",
             "password" => "required",
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'image' => 'sometimes|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
 
         ];
     }

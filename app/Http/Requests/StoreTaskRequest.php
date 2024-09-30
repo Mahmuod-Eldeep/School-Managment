@@ -26,8 +26,14 @@ class StoreTaskRequest extends FormRequest
         return [
             "title" => "required|max:255",
             "is_done" => "required",
-            'subject_id' => "required"
+            'subject_id' => 'required|exists:subjects,id',
+        ];
+    }
 
+    public function messages()
+    {
+        return [
+            'subject_id.exists' => 'The subject_id does not exist.',
         ];
     }
 }

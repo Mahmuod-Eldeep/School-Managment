@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth; // استدعاء الفصل Auth
+use Illuminate\Support\Facades\Auth;
 use Stripe\Stripe;
 
 class StripePaymentController extends Controller
@@ -12,12 +12,12 @@ class StripePaymentController extends Controller
     public function stripePost(Request $request)
     {
         try {
-            // التحقق من أن المستخدم قد قام بتسجيل الدخول
+
             if (Auth::check()) {
-                // تعيين مفتاح API الخاص بـ Stripe
+
                 Stripe::setApiKey(env('STRIPE_SECRET'));
 
-                // استخدام رمز اختباري للبطاقة (استبدال 'tok_test...' برمز اختباري فعلي)
+
                 $token = $request->input('token');
 
                 // إنشاء عملية شحن باستخدام الرمز الاختباري

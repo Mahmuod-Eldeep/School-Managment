@@ -43,6 +43,8 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'updated_at',
+        'created_at'
     ];
 
     /**
@@ -52,8 +54,10 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'payment_status' => 'boolean',
+        // 'payment_status' => 'boolean',
     ];
+
+
 
     public function tasks(): HasMany
     {
