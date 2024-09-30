@@ -11,15 +11,19 @@ class MyFatoorah extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
         'total',
         'Payment_Status',
         'Country',
         'Currency',
-        'PaymentId',
+        'Payment_Id',
 
     ];
+    protected $hidden = [
 
-
+        'updated_at',
+        'created_at'
+    ];
 
     public function Payment(): BelongsTo
     {

@@ -3,21 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Events\PaymentEvent;
-use App\Mail\PaymentConfirmationMail;
 use App\Models\MyFatoorah as ModelsMyFatoorah;
 use App\Models\User;
-use App\Notifications\InvoicePaid;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Contracts\View\View;
-use MyFatoorah\Library\MyFatoorah;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth;
 use MyFatoorah\Library\API\Payment\MyFatoorahPayment;
 use MyFatoorah\Library\API\Payment\MyFatoorahPaymentStatus;
-use Exception;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Notification;
+use MyFatoorah\Library\MyFatoorah;
+
+
 
 class MyFatoorahController extends Controller
 {
@@ -49,6 +46,54 @@ class MyFatoorahController extends Controller
      *
      * @return Response
      */
+
+    /**
+     * @OA\Post(
+     *     path="/api/Myfatoora",
+     *     summary="Redirect to MyFatoorah Invoice URL",
+     *     description="Initiate a payment through MyFatoorah and retrieve the invoice URL.",
+     *     operationId="getMyFatoorahInvoice",
+     *     tags={"Payments"},
+     *     @OA\Parameter(
+     *         name="pmid",
+     *         in="query",
+     *         description="Payment method ID (0 for MyFatoorah invoice, 1 for Knet in test mode).",
+     *         required=true,
+     *         @OA\Schema(type="integer", example=2)
+     *     ),
+     *     @OA\Parameter(
+     *         name="total",
+     *         in="query",
+     *         description="Total amount for the invoice.",
+     *         required=true,
+     *         @OA\Schema(type="number", format="float", example=30)
+     *     ),
+     *     @OA\Parameter(
+     *         name="currency_type",
+     *         in="query",
+     *         description="Currency type for the invoice.",
+     *         required=true,
+     *         @OA\Schema(type="string", example="USD")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response with the invoice URL.",
+     *         @OA\Schema(
+     *             type="object",
+     *             @OA\Property(property="invoiceURL", type="string", example="https://example.com/invoice/12345")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Error response.",
+     *         @OA\Schema(
+     *             type="object",
+     *             @OA\Property(property="IsSuccess", type="string", example="false"),
+     *             @OA\Property(property="Message", type="string", example="Invalid payment method.")
+     *         )
+     *     )
+     * )
+     */
     public function index()
     {
         try {
@@ -56,6 +101,10 @@ class MyFatoorahController extends Controller
             $paymentId = request('pmid') ?: 0;
             $sessionId = request('sid') ?: null;
             $User = Auth::user();
+            // Check if user is authenticated
+            if ($User['status'] == 'Manager' || $User['status'] == 'Teacher') {
+                return response()->json(['IsSuccess' => false, 'Message' => __('Only Student')]);
+            }
             $orderId  = $User->id;
             $curlData = $this->getPayLoadData($orderId);
             $mfObj   = new MyFatoorahPayment($this->mfConfig);

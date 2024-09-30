@@ -30,6 +30,12 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/test', function () {
 
+    dispatch(function () {
+        logger('hello from queue!');
+    });
+    return "Done";
+});
 
 //|--------------------------------------------------------------------------

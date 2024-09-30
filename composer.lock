@@ -1222,16 +1222,16 @@
         },
         {
             "name": "darkaonline/l5-swagger",
-            "version": "8.6.0",
+            "version": "8.6.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DarkaOnLine/L5-Swagger.git",
-                "reference": "76ce7aa61ac61c0a495c98ba2bc0b886ac4b6eaa"
+                "reference": "9d72140330b5df4379b907d9582bf90b34ae59a2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DarkaOnLine/L5-Swagger/zipball/76ce7aa61ac61c0a495c98ba2bc0b886ac4b6eaa",
-                "reference": "76ce7aa61ac61c0a495c98ba2bc0b886ac4b6eaa",
+                "url": "https://api.github.com/repos/DarkaOnLine/L5-Swagger/zipball/9d72140330b5df4379b907d9582bf90b34ae59a2",
+                "reference": "9d72140330b5df4379b907d9582bf90b34ae59a2",
                 "shasum": ""
             },
             "require": {
@@ -1290,7 +1290,7 @@
             ],
             "support": {
                 "issues": "https://github.com/DarkaOnLine/L5-Swagger/issues",
-                "source": "https://github.com/DarkaOnLine/L5-Swagger/tree/8.6.0"
+                "source": "https://github.com/DarkaOnLine/L5-Swagger/tree/8.6.2"
             },
             "funding": [
                 {
@@ -1298,7 +1298,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-03-13T14:06:52+00:00"
+            "time": "2024-08-29T08:02:07+00:00"
         },
         {
             "name": "daverandom/libdns",
