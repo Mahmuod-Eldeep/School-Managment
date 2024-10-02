@@ -28,7 +28,9 @@ return [
     'exposed_headers' => [],
 
     'max_age' => 0,
+    
+    'paths' => ['api/*', 'sanctum/csrf-cookie', 'api/documentation'],
 
-    'supports_credentials' => false,
+    'supports_credentials' =>true,
 
 ];
